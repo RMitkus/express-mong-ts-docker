@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/cars
+      NODE_ENV: production
+    volumes:
+      - .:/app
+
+volumes:
+  mongo-data:
+    driver: local
