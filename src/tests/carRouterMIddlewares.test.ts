@@ -2,6 +2,7 @@ import {
   validateColor,
   validateField,
 } from "../middlewares/carsRouterMiddlewares";
+
 describe("Car Router Middlewares", () => {
   describe("validateField", () => {
     let errors: Array<{ field: string; error: string }>;
@@ -20,7 +21,7 @@ describe("Car Router Middlewares", () => {
       expect(errors).toHaveLength(1);
       expect(errors[0]).toEqual({
         field: "brand",
-        error: "brand is required and must be a string.",
+        error: "brand must be a string.",
       });
     });
 
@@ -34,7 +35,7 @@ describe("Car Router Middlewares", () => {
       expect(errors).toHaveLength(1);
       expect(errors[0]).toEqual({
         field: "year",
-        error: "year is required and must be a number.",
+        error: "year must be a number.",
       });
     });
 
@@ -43,10 +44,25 @@ describe("Car Router Middlewares", () => {
       expect(errors).toHaveLength(1);
       expect(errors[0]).toEqual({
         field: "year",
-        error: "year is required and must be a number.",
+        error: "year must be a number.",
+      });
+    });
+
+    test("should not add error when value is undefined and field is not required", () => {
+      validateField(undefined, "brand", "string", errors, false);
+      expect(errors).toHaveLength(0);
+    });
+
+    test("should add error when value is undefined and field is required", () => {
+      validateField(undefined, "brand", "string", errors, true);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toEqual({
+        field: "brand",
+        error: "brand must be a string.",
       });
     });
   });
+
   describe("validateColor", () => {
     let errors: Array<{ field: string; error: string }>;
 
@@ -76,7 +92,7 @@ describe("Car Router Middlewares", () => {
       expect(errors).toHaveLength(1);
       expect(errors[0]).toEqual({
         field: "color.r",
-        error: "color.r is required and must be a number.",
+        error: "color.r must be a number.",
       });
     });
 
@@ -86,7 +102,7 @@ describe("Car Router Middlewares", () => {
       expect(errors).toHaveLength(1);
       expect(errors[0]).toEqual({
         field: "color.g",
-        error: "color.g is required and must be a number.",
+        error: "color.g must be a number.",
       });
     });
 
@@ -96,7 +112,7 @@ describe("Car Router Middlewares", () => {
       expect(errors).toHaveLength(1);
       expect(errors[0]).toEqual({
         field: "color.b",
-        error: "color.b is required and must be a number.",
+        error: "color.b must be a number.",
       });
     });
 
@@ -107,15 +123,15 @@ describe("Car Router Middlewares", () => {
       expect(errors).toEqual([
         {
           field: "color.r",
-          error: "color.r is required and must be a number.",
+          error: "color.r must be a number.",
         },
         {
           field: "color.g",
-          error: "color.g is required and must be a number.",
+          error: "color.g must be a number.",
         },
         {
           field: "color.b",
-          error: "color.b is required and must be a number.",
+          error: "color.b must be a number.",
         },
       ]);
     });
