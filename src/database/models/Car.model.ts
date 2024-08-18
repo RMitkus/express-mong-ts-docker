@@ -13,6 +13,7 @@ function Singleton<T extends new () => any>(ctr: T): T {
   return class {
     constructor() {
       if (instance) {
+        return instance;
       }
       instance = new ctr();
       return instance;
