@@ -26,19 +26,34 @@ export const validateField = (
 };
 
 export const validateColor = (
-  color: { r: number; g: number; b: number },
+  color: { r?: number; g?: number; b?: number },
   errors: Array<{ field: string; error: string }>,
+  isRequired = true,
 ) => {
   if (!color || typeof color !== "object") {
-    errors.push({
-      field: "color",
-      error:
-        "Color is required and must be an object with r, g, and b properties.",
-    });
+    if (isRequired) {
+      errors.push({
+        field: "color",
+        error:
+          "Color is required and must be an object with r, g, and b properties.",
+      });
+    }
   } else {
-    validateField(color.r, "color.r", "number", errors);
-    validateField(color.g, "color.g", "number", errors);
-    validateField(color.b, "color.b", "number", errors);
+    validateField(color.r, "color.r", "number", errors, false);
+    validateField(color.g, "color.g", "number", errors, false);
+    validateField(color.b, "color.b", "number", errors, false);
+
+    if (
+      isRequired &&
+      color.r === undefined &&
+      color.g === undefined &&
+      color.b === undefined
+    ) {
+      errors.push({
+        field: "color",
+        error: "At least one color component (r, g, b) must be provided.",
+      });
+    }
   }
 };
 
@@ -124,10 +139,10 @@ export const updateCarValidator = (
     errors.push({ field: "id", error: "Invalid car ID format" });
   }
 
-  validateField(brand, "brand", "string", errors);
-  validateField(model, "model", "string", errors);
-  validateField(year, "year", "number", errors);
-  validateColor(color, errors);
+  validateField(brand, "brand", "string", errors, false);
+  validateField(model, "model", "string", errors, false);
+  validateField(year, "year", "number", errors, false);
+  validateColor(color, errors, false);
 
   if (errors.length > 0) {
     return res.status(400).json({ errors });

@@ -6,9 +6,22 @@ import {
   CreateCarDTO,
   UpdateCarDTO,
 } from "../../routes/types";
+import { flattenObject } from "../../utils/utils";
 
+function Singleton<T extends new () => any>(ctr: T): T {
+  let instance: T;
+  return class {
+    constructor() {
+      if (instance) {
+      }
+      instance = new ctr();
+      return instance;
+    }
+  } as T;
+}
+@Singleton
 export class Car {
-  static carSchema = new mongoose.Schema(
+  carSchema = new mongoose.Schema(
     {
       _id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -26,75 +39,69 @@ export class Car {
     { timestamps: true },
   );
 
-  static async createCar(carDTO: CreateCarDTO) {
-    const newCar = await carModel.create(carDTO);
+  async createCar(carDTO: CreateCarDTO) {
+    const newCar = await this.insertRecord(carDTO);
     return newCar;
   }
 
-  static async getAllCars() {
-    const allCars = await carModel.find();
+  async getAllCars() {
+    const allCars = await this.getAllRecords();
     return allCars;
   }
 
-  static async getFilteredCars(filter: CarFilter) {
-    const flattenedFilter = this.flattenObject(filter);
-    console.log(flattenedFilter);
-    const cars = await this.getRecords(flattenedFilter);
+  async getFilteredCars(filter: CarFilter) {
+    const flattenedFilter = flattenObject(filter);
+    const cars = await this.getFilteredRecords(flattenedFilter);
     return cars;
   }
 
-  static async getRecords(filter: mongoose.FilterQuery<CarFilter>) {
+  private async getAllRecords() {
+    const allrecords = await carModel.find();
+    return allrecords;
+  }
+
+  private async insertRecord(data: CreateCarDTO) {
+    const newlyInstertedNewRecord = new carModel(data);
+    await newlyInstertedNewRecord.save();
+    return newlyInstertedNewRecord;
+  }
+
+  private async getFilteredRecords(filter: mongoose.FilterQuery<CarFilter>) {
     const filteredRecords = await carModel.find(filter);
     return filteredRecords;
   }
 
-  static async getCar(carId: string) {
+  async getCar(carId: string) {
     const car = await this.getRecord(carId);
     return car;
   }
 
-  static async updateCar(carId: string, car: UpdateCarDTO) {
-    const finalcar = this.flattenObject(car);
-    const cars = await this.updateRecord(carId, finalcar);
+  async updateCar(carId: string, car: UpdateCarDTO) {
+    const flattenedCar = flattenObject(car);
+    const cars = await this.updateRecord(carId, flattenedCar);
     return cars;
   }
 
-  static async createBulkCars(cars: CreateCarDTO[]) {
+  async createBulkCars(cars: CreateCarDTO[]) {
+    const newCars = await this.createBulkRecords(cars);
+    return newCars;
+  }
+
+  private async createBulkRecords(cars: CreateCarDTO[]) {
     const newCars = await carModel.insertMany(cars);
     return newCars;
   }
 
-  static async deleteCar(id: string) {
+  async deleteCar(id: string) {
     await this.deleteRecord(id);
   }
 
-  private static flattenObject(
-    object: any,
-    prefix = "",
-    result = object,
-  ): { key: string; value: any } {
-    for (const key in object) {
-      const value = object[key];
-      const newKey = prefix ? `${prefix}.${key}` : key;
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        !Array.isArray(value)
-      ) {
-        this.flattenObject(value, newKey, result);
-      } else {
-        result[newKey] = value;
-      }
-    }
-    return result;
-  }
-
-  private static async getRecord(id: string) {
+  private async getRecord(id: string) {
     const car = await carModel.findById(id);
     return car;
   }
 
-  private static async updateRecord(
+  private async updateRecord(
     carId: string,
     data: mongoose.UpdateQuery<CarDTO>,
   ) {
@@ -108,9 +115,9 @@ export class Car {
     return updatedRecord;
   }
 
-  private static async deleteRecord(carId: string) {
+  private async deleteRecord(carId: string) {
     await carModel.deleteOne({ _id: carId });
   }
 }
 
-const carModel = mongoose.model("cars", Car.carSchema);
+const carModel = mongoose.model("cars", new Car().carSchema);

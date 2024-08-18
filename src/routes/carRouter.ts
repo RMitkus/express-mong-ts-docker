@@ -25,7 +25,7 @@ carRouter.post(
 
 carRouter.get("/", asyncHandler(carController.getAllCars));
 
-carRouter.get(
+carRouter.post(
   "/filter",
   [getFilteredCarsValidator],
   asyncHandler(carController.getFilteredCars),

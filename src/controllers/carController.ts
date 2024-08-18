@@ -10,7 +10,8 @@ const createCar = async (
   next: NextFunction,
 ) => {
   try {
-    const newCar = await Car.createCar(req.body);
+    const car = new Car();
+    const newCar = await car.createCar(req.body);
     res.status(201).json(newCar);
   } catch (error) {
     next(
@@ -21,7 +22,8 @@ const createCar = async (
 
 const getAllCars = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cars = await Car.getAllCars();
+    const car = new Car();
+    const cars = await car.getAllCars();
     res.json(cars);
   } catch (error) {
     next(
@@ -38,13 +40,13 @@ const getFilteredCars = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const car = new Car();
   try {
     const filteredBody = Object.fromEntries(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       Object.entries(req.body).filter(([_, value]) => value !== undefined),
     );
-
-    const cars = await Car.getFilteredCars(filteredBody);
+    const cars = await car.getFilteredCars(filteredBody);
     res.json(cars);
   } catch (error) {
     next(
@@ -62,14 +64,15 @@ const getCar = async (
   next: NextFunction,
 ) => {
   const { id: carId } = req.params;
+  const car = new Car();
   try {
-    const car = await Car.getCar(carId);
+    const returnedCar = await car.getCar(carId);
 
-    if (!car) {
+    if (!returnedCar) {
       return next(createHttpError(404, "Car not found"));
     }
 
-    res.json(car);
+    res.json(returnedCar);
   } catch (error) {
     next(
       createHttpError(500, `Error getting car: ${(error as Error).message}`),
@@ -82,10 +85,11 @@ const updateCar = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const car = new Car();
   const { id: carId } = req.params;
   const { brand, model, year, color } = req.body;
   try {
-    const updatedCar = await Car.updateCar(carId, {
+    const updatedCar = await car.updateCar(carId, {
       brand,
       model,
       year,
@@ -104,9 +108,10 @@ const deleteCar = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const car = new Car();
   const { id: carId } = req.params;
   try {
-    await Car.deleteCar(carId);
+    await car.deleteCar(carId);
     res.json();
   } catch (error) {
     next(
@@ -120,9 +125,10 @@ const creatBulkCars = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const car = new Car();
   const { cars } = req.body;
   try {
-    const cretedCars = await Car.createBulkCars(cars);
+    const cretedCars = await car.createBulkCars(cars);
     res.json({ success: true, uploaded: cretedCars });
   } catch (error) {
     next(
