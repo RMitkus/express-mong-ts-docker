@@ -22,6 +22,7 @@ app.use("/cars", carRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
+  console.log(err);
   res.status(err.statusCode || 500).json({
     status: err.status,
     message: err.message,

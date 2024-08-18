@@ -20,26 +20,29 @@ function Singleton<T extends new () => any>(ctr: T): T {
     }
   } as T;
 }
+
+const carSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      auto: true,
+    },
+    brand: String,
+    model: String,
+    year: Number,
+    color: {
+      r: String,
+      g: String,
+      b: String,
+    },
+  },
+  { timestamps: true },
+);
+
+const carModel = mongoose.model("cars", carSchema);
+
 @Singleton
 export class Car {
-  carSchema = new mongoose.Schema(
-    {
-      _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        auto: true,
-      },
-      brand: String,
-      model: String,
-      year: Number,
-      color: {
-        r: String,
-        g: String,
-        b: String,
-      },
-    },
-    { timestamps: true },
-  );
-
   async createCar(carDTO: CreateCarDTO) {
     const newCar = await this.insertRecord(carDTO);
     return newCar;
@@ -120,5 +123,3 @@ export class Car {
     await carModel.deleteOne({ _id: carId });
   }
 }
-
-const carModel = mongoose.model("cars", new Car().carSchema);
