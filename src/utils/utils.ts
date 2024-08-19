@@ -14,3 +14,16 @@ export function flattenObject(
   }
   return result;
 }
+
+export function Singleton<T extends new () => any>(ctr: T): T {
+  let instance: T;
+  return class {
+    constructor() {
+      if (instance) {
+        return instance;
+      }
+      instance = new ctr();
+      return instance;
+    }
+  } as T;
+}

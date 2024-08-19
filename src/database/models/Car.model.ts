@@ -6,40 +6,8 @@ import {
   CreateCarDTO,
   UpdateCarDTO,
 } from "../../routes/types";
-import { flattenObject } from "../../utils/utils";
-
-function Singleton<T extends new () => any>(ctr: T): T {
-  let instance: T;
-  return class {
-    constructor() {
-      if (instance) {
-        return instance;
-      }
-      instance = new ctr();
-      return instance;
-    }
-  } as T;
-}
-
-const carSchema = new mongoose.Schema(
-  {
-    _id: {
-      type: mongoose.Schema.Types.ObjectId,
-      auto: true,
-    },
-    brand: String,
-    model: String,
-    year: Number,
-    color: {
-      r: String,
-      g: String,
-      b: String,
-    },
-  },
-  { timestamps: true },
-);
-
-const carModel = mongoose.model("cars", carSchema);
+import { flattenObject, Singleton } from "../../utils/utils";
+import { carModel } from "../schemas/car.schema";
 
 @Singleton
 export class Car {
