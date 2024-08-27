@@ -39,9 +39,9 @@ export const validateColor = (
       });
     }
   } else {
-    validateField(color.r, "color.r", "number", errors, false);
-    validateField(color.g, "color.g", "number", errors, false);
-    validateField(color.b, "color.b", "number", errors, false);
+    validateField(color.r, "color.r", "string", errors, false);
+    validateField(color.g, "color.g", "string", errors, false);
+    validateField(color.b, "color.b", "string", errors, false);
 
     if (
       isRequired &&
@@ -175,11 +175,12 @@ export const uploadBulkValidator = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (!req.file || Object.keys(req.file).length === 0) {
+  if (!req.file) {
     return res
       .status(400)
       .json({ errors: [{ error: "No files were uploaded." }] });
   }
+
   const csvFile = req?.file?.buffer.toString();
 
   req.body.csv = csvFile;
@@ -219,16 +220,16 @@ export const parseCsvToJson = (
     });
   }
 
-  const cars = lines.slice(1).map((line: string, index: number) => {
+  const cars = lines.slice(1).map((line: string) => {
     const [brand, model, year, r, g, b] = line.split(",");
 
-    validateField(brand, `line ${index + 2} - brand`, "string", errors);
-    validateField(model, `line ${index + 2} - model`, "string", errors);
+    validateField(brand, "brand", "string", errors);
+    validateField(model, "model", "string", errors);
 
     const yearInt = parseInt(year, 10);
     if (isNaN(yearInt)) {
       errors.push({
-        field: `line ${index + 2} - year`,
+        field: "year",
         error: "Year must be a valid number",
       });
     }
